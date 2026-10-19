@@ -1,10 +1,31 @@
+```hbs
+<!-- Estrutura principal que apresenta os detalhes de um espaço. -->
 <article class="detalhe">
-  <a class="voltar" href="/publicacoes">← Voltar para as publicações</a>
-  <p class="categoria">{{publicacao.categoria}}</p>
-  <h1>{{publicacao.titulo}}</h1>
-  <p class="detalhe__conteudo">{{publicacao.conteudo}}</p>
+
+  <!-- Link para voltar à página com a lista de espaços. -->
+  <a class="voltar" href="/espacos">← Voltar para os espaços</a>
+
+  <!-- Identifica a seção como a página de detalhes de um espaço. -->
+  <p class="categoria">Detalhes do espaço</p>
+
+  <!-- Exibe o nome do espaço selecionado. -->
+  <h1>{{espaco.nome}}</h1>
+
+  <!-- Exibe a localização do espaço. -->
+  <p><strong>Localização:</strong> {{espaco.localizacao}}</p>
+
+  <!-- Exibe a capacidade máxima de pessoas. -->
+  <p><strong>Capacidade:</strong> {{espaco.capacidade}} pessoas</p>
+
+  <!-- Exibe os equipamentos e recursos disponíveis. -->
+  <p><strong>Recursos:</strong> {{espaco.recursos}}</p>
+
+  <!-- Rodapé que destaca a situação atual do espaço. -->
   <footer>
-    <span>Por {{publicacao.autor}}</span>
-    <span>Publicada em {{formatarData publicacao.createdAt}}</span>
+    <strong>Situação do espaço:</strong>
+
+    <!-- Exibe a situação cadastrada no banco de dados. -->
+    <span class="situacao">{{espaco.situacao}}</span>
   </footer>
 </article>
+```

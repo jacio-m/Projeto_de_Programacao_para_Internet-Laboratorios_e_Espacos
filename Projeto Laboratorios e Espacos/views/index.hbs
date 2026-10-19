@@ -1,22 +1,63 @@
+
+{{!-- Seção principal de apresentação do site. --}}
 <section class="hero">
-  <p class="rotulo">Servidor funcionando</p>
+  {{!-- Pequeno texto de identificação da seção. --}}
+  <p class="rotulo">Conheça nossos espaços</p>
+
+  {{!-- Exibe o título enviado pela aplicação. --}}
   <h1>{{titulo}}</h1>
+
+  {{!-- Exibe o subtítulo da página inicial. --}}
   <p class="hero__subtitulo">{{subtitulo}}</p>
+
+  {{!-- Apresenta informações sobre os espaços disponíveis no campus. --}}
   <p>
-    Esta página foi produzida no servidor. A aplicação está pronta para
-    demonstrar o percurso completo entre rota, banco de dados, template e
-    navegador.
+    Consulte laboratórios, salas especializadas e espaços coletivos do campus.
+    Confira a localização, a capacidade, os recursos e a situação de cada espaço.
   </p>
-  <a class="botao" href="/publicacoes">Abrir as publicações</a>
+
+  {{!-- Link que direciona o usuário para a listagem de espaços. --}}
+  <a class="botao" href="/espacos">Conhecer os espaços</a>
 </section>
 
-<section aria-labelledby="fluxo" class="painel">
-  <h2 id="fluxo">Percurso trabalhado na aula</h2>
-  <ol class="etapas">
-    <li><strong>Navegador:</strong> solicita um endereço.</li>
-    <li><strong>Express:</strong> identifica a rota correspondente.</li>
-    <li><strong>Sequelize:</strong> consulta os registros no SQLite.</li>
-    <li><strong>Handlebars:</strong> combina os dados com o template.</li>
-    <li><strong>Servidor:</strong> devolve a página HTML ao navegador.</li>
-  </ol>
+{{!-- Seção que apresenta os espaços em destaque na página inicial. --}}
+<section class="painel" aria-labelledby="destaques">
+  {{!-- Título da seção de destaques. --}}
+  <h2 id="destaques">Espaços em destaque</h2>
+
+  {{!-- Verifica se existem espaços disponíveis para exibição. --}}
+  {{#if espacos.length}}
+    {{!-- Organiza os cartões dos espaços em uma grade. --}}
+    <div class="grade">
+      {{!-- Percorre a lista de espaços recebida pela página. --}}
+      {{#each espacos}}
+        {{!-- Cartão com as informações de um espaço. --}}
+        <article class="cartao">
+          {{!-- Área superior do cartão com a categoria e o identificador. --}}
+          <div class="cartao__topo">
+            <span class="categoria">Espaço do campus</span>
+            <span class="identificador">#{{id}}</span>
+          </div>
+
+          {{!-- Exibe o nome do espaço. --}}
+          <h3>{{nome}}</h3>
+
+          {{!-- Exibe a localização do espaço no campus. --}}
+          <p><strong>Localização:</strong> {{localizacao}}</p>
+
+          {{!-- Exibe a capacidade máxima de pessoas. --}}
+          <p><strong>Capacidade:</strong> {{capacidade}} pessoas</p>
+
+          {{!-- Exibe a situação atual do espaço. --}}
+          <p><strong>Situação:</strong> {{situacao}}</p>
+
+          {{!-- Link para consultar os detalhes do espaço selecionado. --}}
+          <a href="/espacos/{{id}}">Ver detalhes</a>
+        </article>
+      {{/each}}
+    </div>
+  {{else}}
+    {{!-- Mensagem exibida quando não existem espaços cadastrados para mostrar. --}}
+    <p>Nenhum espaço cadastrado para exibição.</p>
+  {{/if}}
 </section>

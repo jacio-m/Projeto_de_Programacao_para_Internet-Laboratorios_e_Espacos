@@ -1,4 +1,4 @@
-```js
+
 // Importa a ferramenta de testes do Node.js.
 const test = require("node:test");
 

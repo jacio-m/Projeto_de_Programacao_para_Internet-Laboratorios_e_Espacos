@@ -1,23 +1,48 @@
-//esse codigo roda assim que o servidor liga
 
+// Esse código configura a aplicação e prepara o banco de dados assim que o servidor é iniciado.
+
+// Importa o módulo path para trabalhar com caminhos de arquivos e pastas.
 const path = require("node:path");
-const express = require("express");
-const { engine } = require("express-handlebars");
-const { sequelize, Espaco } = require("./models"); //requisitando espaco dos models
-const indexRouter = require("./routes/index");
-const publicacoesRouter = require("./routes/espacos");
 
+// Importa o Express para criar e configurar a aplicação web.
+const express = require("express");
+
+// Importa o mecanismo de templates Handlebars para renderizar as páginas HTML.
+const { engine } = require("express-handlebars");
+
+// Importa a conexão com o banco de dados e o modelo Espaco.
+const { sequelize, Espaco } = require("./models"); // requisitando Espaco dos models
+
+// Importa as rotas da página inicial e do endpoint de saúde.
+const indexRouter = require("./routes/index");
+
+// Importa as rotas responsáveis pela listagem e pelos detalhes dos espaços.
+const espacosRouter  = require("./routes/espacos");
+
+// Função responsável por criar e configurar a aplicação Express.
 function createApp() {
+  // Cria uma nova instância da aplicação.
   const app = express();
 
+  // Configura o Handlebars como mecanismo de renderização das páginas.
   app.engine(
     "hbs",
     engine({
+      // Define a extensão dos arquivos de template.
       extname: ".hbs",
+
+      // Define o layout principal utilizado pelas páginas.
       defaultLayout: "main",
+
+      // Define a pasta onde ficam os layouts.
       layoutsDir: path.join(__dirname, "views", "layouts"),
+
+      // Define a pasta onde ficam os componentes reutilizáveis.
       partialsDir: path.join(__dirname, "views", "partials"),
+
+      // Define funções auxiliares que podem ser utilizadas nos templates.
       helpers: {
+        // Formata uma data para o padrão brasileiro.
         formatarData(valor) {
           return new Intl.DateTimeFormat("pt-BR", {
             dateStyle: "short"
@@ -27,93 +52,19 @@ function createApp() {
     })
   );
 
+  // Define o Handlebars como mecanismo de visualização da aplicação.
   app.set("view engine", "hbs");
+
+  // Informa onde estão localizados os arquivos das páginas.
   app.set("views", path.join(__dirname, "views"));
 
+  // Permite interpretar dados enviados por formulários.
   app.use(express.urlencoded({ extended: false }));
+
+  // Permite interpretar requisições que enviam dados no formato JSON.
   app.use(express.json());
+
+  // Disponibiliza arquivos estáticos, como CSS, imagens e JavaScript.
   app.use(express.static(path.join(__dirname, "public")));
 
-  app.use("/", indexRouter);
-  app.use("/publicacoes", publicacoesRouter);
-
-  app.use((req, res) => {
-    res.status(404).render("404", {
-      titulo: "Página não encontrada",
-      caminho: req.originalUrl
-    });
-  });
-
-  app.use((erro, req, res, next) => {
-    console.error("Erro tratado pela aplicação:", erro);
-
-    if (res.headersSent) {
-      return next(erro);
-    }
-
-    return res.status(500).render("erro", {
-      titulo: "Erro interno",
-      mensagem:
-        process.env.NODE_ENV === "development"
-          ? erro.message
-          : "Não foi possível concluir a solicitação. Tente novamente."
-    });
-  });
-
-  return app;
-}
-
-async function prepararBanco() {
-  await sequelize.authenticate(); //aqui ele verifica se o arquivo da pra acessar
-  await sequelize.sync(); //aqui ele vai ver o arquivo models/espaco.js, se nao tiver a tabela espacos, ele vai criar
-
-  const quantidade = await Espaco.count(); //conta quantas linhas tem na tabela, ou seja, quantas entidades (espacos) tem
-  if (quantidade === 0) { //aqui se nao tiver nenhuma linha, insere os dados abaixo, mas caso tenha, ignora a parte de criar
-    await Espaco.bulkCreate([ //insere uma lista de uma vez só com os 6 espacos pedidos nos requisitos
-      {
-        nome: "Laboratório de redes",
-        localizacao: "Bloco A, Sala 66",
-        capacidade: 30,
-        recursos: "Roteadores Cisco, switches gerenciáveis, patch panels e cabos de rede.",
-        situacao: "Disponível"
-      },
-      {
-        nome: "Sala maker",
-        localizacao: "Bloco A, Sala 60.2",
-        capacidade: 20,
-        recursos: "Impressoras 3D, bancadas eletrônicas, kits Arduino e ferramentas de prototipagem.",
-        situacao: "Em uso"
-      },
-      {
-        nome: "Auditório",
-        localizacao: "Bloco A, Térreo",
-        capacidade: 120,
-        recursos: "Projetor Epson, sistema de som surround, microfones sem fio e palco.",
-        situacao: "Disponível"
-      },
-      {
-        nome: "Laboratório de informática",
-        localizacao: "Bloco B, Sala 236",
-        capacidade: 35,
-        recursos: "Computadores com Windows 11 e Linux, projetor Epson e lousa branca.",
-        situacao: "Disponível"
-      },
-      {
-        nome: "Sala de audiovisual",
-        localizacao: "Bloco B, Sala 235",
-        capacidade: 15,
-        recursos: "Câmeras DSLR, iluminação softbox, microfones lapela e mesa de som.",
-        situacao: "Em manutenção"
-      },
-      {
-        nome: "Biblioteca setorial",
-        localizacao: "Bloco B, Térreo",
-        capacidade: 50,
-        recursos: "Mesas de estudo individual e em grupo, acervo temático e terminais de consulta.",
-        situacao: "Disponível"
-      }
-    ]);
-  }
-}
-
-module.exports = { createApp, prepararBanco };
+  // Registra

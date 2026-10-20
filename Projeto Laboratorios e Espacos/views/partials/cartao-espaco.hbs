@@ -1,37 +1,20 @@
-
-<!-- Estrutura principal do cartão que apresenta um espaço. -->
+{{!-- partial reutilizavel para cada cartao vertical da listagem (wireframe 02) --}}
 <article class="cartao">
-
-  <!-- Parte superior do cartão com a categoria e o identificador. -->
-  <div class="cartao__topo">
-
-    <!-- Indica que o conteúdo representa um laboratório ou espaço. -->
-    <span class="categoria">Laboratório ou espaço</span>
-
-    <!-- Exibe o identificador do espaço. -->
-    <span class="identificador">#{{id}}</span>
+  <div class="cartao__icone" aria-hidden="true">
+    <span>{{iconeEspaco nome}}</span>
   </div>
 
-  <!-- Exibe o nome do laboratório ou espaço. -->
   <h2>{{nome}}</h2>
-
-  <!-- Apresenta a localização do espaço. -->
   <p><strong>Localização:</strong> {{localizacao}}</p>
-
-  <!-- Apresenta a capacidade máxima de pessoas. -->
   <p><strong>Capacidade:</strong> {{capacidade}} pessoas</p>
-
-  <!-- Apresenta os recursos disponíveis no espaço. -->
   <p><strong>Recursos:</strong> {{recursos}}</p>
 
-  <!-- Rodapé do cartão com a situação e o link para detalhes. -->
+  <div class="cartao__situacao">
+    <span class="situacao {{classeSituacao situacao}}">{{situacao}}</span>
+  </div>
+
   <footer class="cartao__rodape">
-
-    <!-- Exibe a situação atual do espaço. -->
-    <span class="situacao">{{situacao}}</span>
-
-    <!-- Link para acessar a página de detalhes do espaço pelo ID. -->
-    <a href="/espacos/{{id}}">Ver detalhes</a>
+    <span class="identificador">#{{id}}</span>
+    <a class="botao-contorno" href="/espacos/{{id}}">Ver detalhes</a>
   </footer>
 </article>
-

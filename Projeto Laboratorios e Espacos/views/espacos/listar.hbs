@@ -1,0 +1,24 @@
+<header class="titulo-pagina">
+  <p class="rotulo">Consulta de espaços</p>
+  <div class="titulo-pagina__topo">
+    <h1>{{titulo}}</h1>
+    <p class="contador">
+      <strong>{{quantidade}}</strong> espaço(s) encontrado(s)
+    </p>
+  </div>
+  <p>{{descricao}}</p>
+</header>
+
+{{!-- se tiver espacos no banco mostra a grade usando o partial, senao mostra aviso --}}
+{{#if possuiEspacos}}
+  <section class="grade" aria-label="Lista de espaços">
+    {{#each espacos}}
+      {{> cartao-espaco}}
+    {{/each}}
+  </section>
+{{else}}
+  <section class="estado-vazio">
+    <h2>Nenhum registro foi encontrado</h2>
+    <p>O banco de dados ainda não possui espaços para apresentar.</p>
+  </section>
+{{/if}}

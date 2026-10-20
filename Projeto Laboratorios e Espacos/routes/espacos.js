@@ -1,82 +1,60 @@
-// importa o express para criar as rotas
-const express = require("express");
+//esse arquivo cuida das rotas de espacos: listagem (/espacos) e detalhamento (/espacos/:id)
 
-// importa o modelo Espaço para acessar os dados do banco
+const express = require("express");
 const { Espaco } = require("../models");
 
-// cria um roteador para organizar as rotas desde arquivo
 const router = express.Router();
 
-// define a rota responsavel por listar todos os espaços
+//rota para listar todos os espacos em ordem alfabetica pelo nome
 router.get("/", async (req, res, next) => {
-  
-  // Busca os espaços cadastrados no banco de dados
-  // organizando os resultados em ordem alfabética pelo nome
   try {
     const espacos = await Espaco.findAll({
-  order: [["nome", "ASC"]],
-  raw: true
-});
+      order: [["nome", "ASC"]],
+      raw: true
+    });
 
-    // renderiza a pagina de listagem e envia os dados encontrados
     res.render("espacos/listar", {
-      titulo: "Laboratórios e Espaços",
+      titulo: "Espaços cadastrados",
+      descricao: "Confira os laboratórios, auditórios e espaços disponíveis no campus.",
       espacos,
-
-      // verifica se existe pelo menos um espaço cadastrado
-      possuiEspacos: espacos.length > 0,
-
-      // informa a quantidade de espaços encontrados
+      possuiEspacos: espacos.length > 0, //verifica se tem pelo menos 1 espaco para o #if da view
       quantidade: espacos.length
     });
   } catch (erro) {
-
-    // encaminha qualquer erro para o tratamento de erros do Express
     next(erro);
   }
 });
 
- // define a rota que exibe os detalhes de um espaço pelo ID
+//rota para mostrar os detalhes de um espaco especifico pelo id
 router.get("/:id", async (req, res, next) => {
-
-  // converte o ID recebido pela URL em um numero
   try {
     const id = Number(req.params.id);
 
-    // verifica se o ID é um numero inteiro positivo
-    if (!Number.isInteger(id) || id<= 0) {
-
-      // retorna a pagina 404 se o ID for inválido
+    //valida se o id passado na url é um numero inteiro positivo (ex: bloqueia /espacos/abc)
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(404).render("404", {
         titulo: "Espaço não encontrado",
         caminho: `/espacos/${req.params.id}`
       });
     }
 
-    // busca no banco de dados o espaço correspondente ao ID
-    const espaco = await Espaco.findByPk(id, { raw: true});
+    const espaco = await Espaco.findByPk(id, { raw: true });
 
-    // verifia se o espaço existe
-    if(!espaco) {
-
-      // retorna a pagina 404 se o espaço não for encontrado
+    //se o numero for valido mas nao existir no banco (ex: /espacos/99999), retorna 404
+    if (!espaco) {
       return res.status(404).render("404", {
         titulo: "Espaço não encontrado",
         caminho: `/espacos/${id}`
       });
     }
 
-    // renderiza a pagina com os detalhes do espaço encontrado
     return res.render("espacos/detalhar", {
       titulo: espaco.nome,
       espaco
     });
   } catch (erro) {
-
-    // encaminha erros para o tratamento de erros 
     return next(erro);
   }
 });
 
-// exporta o roteador para que o app.js possa ultilizar essas rotas
 module.exports = router;

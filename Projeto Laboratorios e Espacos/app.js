@@ -1,112 +1,146 @@
+//esse codigo roda assim que o servidor liga e configura o express
 
-/* Importa o módulo path para trabalhar com caminhos de arquivos e pastas. */
 const path = require("node:path");
-
-/* Importa o Express para criar e configurar a aplicação web. */
 const express = require("express");
-
-/* Importa o mecanismo de templates Handlebars. */
 const { engine } = require("express-handlebars");
-
-/* Importa a conexão com o banco de dados e o modelo Espaco. */
-const { sequelize, Espaco } = require("./models");
-
-/* Importa as rotas da página inicial e do endpoint de saúde. */
+const { sequelize, Espaco } = require("./models"); //requisitando espaco dos models
 const indexRouter = require("./routes/index");
-
-/* Importa as rotas de listagem e detalhes dos espaços. */
 const espacosRouter = require("./routes/espacos");
 
-/* Função responsável por criar e configurar a aplicação Express. */
 function createApp() {
-  /* Cria uma nova instância da aplicação. */
   const app = express();
 
-  /* Configura o Handlebars como mecanismo de renderização. */
   app.engine(
     "hbs",
     engine({
-      /* Define a extensão dos arquivos de template. */
       extname: ".hbs",
-
-      /* Define o layout principal das páginas. */
       defaultLayout: "main",
-
-      /* Define a pasta dos layouts. */
       layoutsDir: path.join(__dirname, "views", "layouts"),
-
-      /* Define a pasta dos componentes reutilizáveis. */
       partialsDir: path.join(__dirname, "views", "partials"),
-
-      /* Define funções auxiliares utilizadas nos templates. */
       helpers: {
-        /* Formata uma data para o padrão brasileiro. */
+        //helper para formatar a data no padrao br
         formatarData(valor) {
+          if (!valor) return "";
           return new Intl.DateTimeFormat("pt-BR", {
             dateStyle: "short"
           }).format(new Date(valor));
+        },
+        //helper para mudar a cor da tag dependendo da situacao do espaco
+        classeSituacao(situacao) {
+          if (situacao === "Disponível") return "situacao--disponivel";
+          if (situacao === "Em uso") return "situacao--uso";
+          return "situacao--manutencao";
+        },
+        //helper para definir um icone simples de acordo com o nome do espaco
+        iconeEspaco(nome) {
+          const texto = String(nome || "").toLowerCase();
+          if (texto.includes("redes")) return "🌐";
+          if (texto.includes("maker") || texto.includes("robótica")) return "🛠️";
+          if (texto.includes("auditório")) return "🎤";
+          if (texto.includes("informática")) return "💻";
+          if (texto.includes("audiovisual")) return "🎬";
+          if (texto.includes("biblioteca")) return "📚";
+          return "🏢";
         }
       }
     })
   );
 
-  /* Define o Handlebars como mecanismo de visualização. */
   app.set("view engine", "hbs");
-
-  /* Informa onde estão os arquivos das páginas. */
   app.set("views", path.join(__dirname, "views"));
 
-  /* Permite interpretar os dados enviados por formulários. */
   app.use(express.urlencoded({ extended: false }));
-
-  /* Permite interpretar requisições no formato JSON. */
   app.use(express.json());
-
-  /* Disponibiliza arquivos estáticos, como CSS e imagens. */
   app.use(express.static(path.join(__dirname, "public")));
 
-  /* Registra as rotas da página inicial e de saúde. */
-  app.use("/", indexRouter);
-
-  /* Registra as rotas de listagem e detalhes dos espaços. */
-  app.use("/espacos", espacosRouter);
-
-  /* Trata endereços que não correspondem a nenhuma rota. */
-  app.use((req, res) => {
-    res.status(404).send("Página não encontrada.");
+  //middleware proprio pedido no edital para mostrar no terminal o metodo e a rota acessada
+  app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.originalUrl}`);
+    next();
   });
 
-  /* Retorna a aplicação configurada. */
+  app.use("/", indexRouter);
+  app.use("/espacos", espacosRouter);
+
+  //se tentar entrar em uma rota que nao existe, cai no erro 404
+  app.use((req, res) => {
+    res.status(404).render("404", {
+      titulo: "Espaço não encontrado",
+      caminho: req.originalUrl
+    });
+  });
+
+  //tratamento de erro 500 caso de algum problema interno no servidor
+  app.use((erro, req, res, next) => {
+    console.error("Erro tratado pela aplicação:", erro);
+
+    if (res.headersSent) {
+      return next(erro);
+    }
+
+    return res.status(500).render("erro", {
+      titulo: "Erro interno",
+      mensagem:
+        process.env.NODE_ENV === "development"
+          ? erro.message
+          : "Não foi possível concluir a solicitação. Tente novamente."
+    });
+  });
+
   return app;
 }
 
-/* Função assíncrona responsável por preparar o banco de dados. */
 async function prepararBanco() {
-  /* Confere a conexão com o banco de dados. */
-  await sequelize.authenticate();
+  await sequelize.authenticate(); //aqui ele verifica se o arquivo da pra acessar
+  await sequelize.sync(); //aqui ele vai ver o arquivo models/espaco.js, se nao tiver a tabela espacos, ele vai criar
 
-  /* Sincroniza os modelos com o banco de dados existente. */
-  await sequelize.sync();
-
-  /* Verifica se já existem espaços cadastrados. */
-  const quantidadeEspacos = await Espaco.count();
-
-  /* Cadastra dados iniciais somente se a tabela estiver vazia. */
-  if (quantidadeEspacos === 0) {
+  const quantidade = await Espaco.count(); //conta quantas linhas tem na tabela, ou seja, quantas entidades (espacos) tem
+  if (quantidade === 0) { //aqui se nao tiver nenhuma linha, insere os dados abaixo, mas caso tenha, ignora a parte de criar
     await Espaco.bulkCreate([
       {
         nome: "Laboratório de redes",
-        descricao: "Espaço destinado a atividades práticas de redes de computadores.",
+        localizacao: "Bloco A, Sala 66",
         capacidade: 30,
-        localizacao: "Bloco de Informática",
-        recursos: "Computadores e equipamentos de rede"
+        recursos: "Roteadores Cisco, switches gerenciáveis, patch panels e cabos de rede.",
+        situacao: "Disponível"
+      },
+      {
+        nome: "Sala maker",
+        localizacao: "Bloco A, Sala 60.2",
+        capacidade: 20,
+        recursos: "Impressoras 3D, bancadas eletrônicas, kits Arduino e ferramentas de prototipagem.",
+        situacao: "Em uso"
+      },
+      {
+        nome: "Auditório",
+        localizacao: "Bloco A, Térreo",
+        capacidade: 120,
+        recursos: "Projetor Epson, sistema de som surround, microfones sem fio e palco.",
+        situacao: "Disponível"
+      },
+      {
+        nome: "Laboratório de informática",
+        localizacao: "Bloco B, Sala 236",
+        capacidade: 35,
+        recursos: "Computadores com Windows 11 e Linux, projetor Epson e lousa branca.",
+        situacao: "Disponível"
+      },
+      {
+        nome: "Sala de audiovisual",
+        localizacao: "Bloco B, Sala 235",
+        capacidade: 15,
+        recursos: "Câmeras DSLR, iluminação softbox, microfones lapela e mesa de som.",
+        situacao: "Em manutenção"
+      },
+      {
+        nome: "Biblioteca setorial",
+        localizacao: "Bloco B, Térreo",
+        capacidade: 50,
+        recursos: "Mesas de estudo individual e em grupo, acervo temático e terminais de consulta.",
+        situacao: "Disponível"
       }
     ]);
   }
 }
 
-/* Exporta as funções utilizadas pelo servidor e pelos testes. */
-module.exports = {
-  createApp,
-  prepararBanco
-};
+module.exports = { createApp, prepararBanco };

@@ -1,0 +1,53 @@
+<p class="migalha">
+  <a href="/">Início</a> / <a href="/espacos">Espaços</a> / Registro #{{espaco.id}}
+</p>
+
+{{!-- layout de duas colunas do wireframe 03: painel principal + lateral de situacao --}}
+<div class="detalhe-layout">
+  <article class="detalhe">
+    <p class="categoria">Detalhes do espaço</p>
+    <h1>{{espaco.nome}}</h1>
+
+    <div class="detalhe__lista">
+      <div class="detalhe__linha">
+        <strong>Nome</strong>
+        <span>{{espaco.nome}}</span>
+      </div>
+      <div class="detalhe__linha">
+        <strong>Localização</strong>
+        <span>{{espaco.localizacao}}</span>
+      </div>
+      <div class="detalhe__linha">
+        <strong>Capacidade</strong>
+        <span>{{espaco.capacidade}} pessoas</span>
+      </div>
+      <div class="detalhe__linha">
+        <strong>Recursos</strong>
+        <span>{{espaco.recursos}}</span>
+      </div>
+      <div class="detalhe__linha">
+        <strong>Situação</strong>
+        <span>{{espaco.situacao}}</span>
+      </div>
+    </div>
+
+    <footer>
+      <span>Registro #{{espaco.id}}</span>
+      <span>Atualizado em {{formatarData espaco.updatedAt}}</span>
+    </footer>
+  </article>
+
+  <aside class="detalhe-lateral" aria-label="Situação atual do espaço">
+    <div class="detalhe-lateral__caixa">
+      <h2>Situação atual</h2>
+      <p>
+        <span class="situacao {{classeSituacao espaco.situacao}}">{{espaco.situacao}}</span>
+      </p>
+      <p class="detalhe-lateral__texto">
+        Este indicador informa o estado de disponibilidade atual do espaço no campus.
+      </p>
+    </div>
+
+    <a class="botao-contorno botao-bloco" href="/espacos">← Voltar para a lista</a>
+  </aside>
+</div>

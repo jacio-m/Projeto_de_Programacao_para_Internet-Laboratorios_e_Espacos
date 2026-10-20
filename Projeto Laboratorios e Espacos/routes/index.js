@@ -1,47 +1,32 @@
-// importa o Express para criar e organizar as rotas
+//esse arquivo cuida das rotas principais: a pagina inicial (/) e o teste de saude (/saude)
+
 const express = require("express");
+const { Espaco } = require("../models");
 
-// importa o modelo Espaço, usado para consultar o banco de dados
-const {Espaco} = require("../models");
-
-// cria um roteador para definir as rotas desta parte da aplicação
 const router = express.Router();
 
-// rota principal do site
 router.get("/", async (req, res, next) => {
-
-  // busca os tres pimeiros espaços cadastrados
-  // organizando os resultados em ordem alfabetica
   try {
+    //busca os 3 primeiros espacos em ordem alfabetica para mostrar nos destaques da home
     const espacos = await Espaco.findAll({
       order: [["nome", "ASC"]],
       limit: 3,
       raw: true
     });
-  
-    // renderiza a pagina inicial e envia os dados encontrados
-  res.render("index", {
-    titulo: "Laboratórios e Espaços",
-    subtitulo: "Conheça os laboratórios e espaços do campus",
-    espacos
-  });
-} catch (erro) {
 
-  // encaminha qualquer erro para o tratamento de erros do Express
-  next(erro);
-}
+    res.render("index", {
+      titulo: "Laboratórios e Espaços",
+      subtitulo: "Acompanhe informações, destaques e registros recentes.",
+      espacos
+    });
+  } catch (erro) {
+    next(erro);
+  }
 });
 
- // rota ultilizada para verificar se a aplicação esta funcionando 
+//rota de diagnostico que retorna um json pra saber se o servidor ta rodando ok
 router.get("/saude", (req, res) => {
-
-  // retorna uma resposta no formato JSON indicando que esta tudo certo
-  res.json({ status: "ok"});
+  res.json({ status: "ok", aplicacao: "laboratorios-e-espacos" });
 });
 
-// exporta as rotas para que possam ser ultilizadas pelo app.js
 module.exports = router;
-
-// ESSE ARQUIVO CUIDA DE DUAS ROTAS:
-// / - EXIBE A PAGINA INICIAL
-// /saude - RETORNA UM JSN PARA VER SE TA FUNCIONANDO

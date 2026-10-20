@@ -1,59 +1,34 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <!-- Define a codificação de caracteres para aceitar acentos e caracteres especiais. -->
     <meta charset="UTF-8">
-
-    <!-- Ajusta a página para diferentes tamanhos de tela, como celulares e computadores. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Descrição da aplicação utilizada por mecanismos de busca. -->
     <meta name="description" content="Sistema de consulta de laboratórios e espaços do campus">
-
-    <!-- Define o título da aba do navegador com o título da página atual. -->
     <title>{{titulo}} | Laboratórios e Espaços</title>
-
-    <!-- Importa o arquivo CSS responsável pela aparência do site. -->
     <link rel="stylesheet" href="/stylesheets/style.css">
   </head>
   <body>
-    <!-- Cabeçalho principal do site. -->
     <header class="cabecalho">
       <div class="limite cabecalho__conteudo">
-
-        <!-- Marca do projeto que funciona como link para a página inicial. -->
         <a class="marca" href="/">Laboratórios e Espaços</a>
-
-        <!-- Menu com os principais links de navegação do site. -->
         <nav aria-label="Navegação principal">
           <ul class="menu">
-
-            <!-- Link para acessar a página inicial. -->
             <li><a href="/">Início</a></li>
-
-            <!-- Link para acessar a listagem dos espaços. -->
             <li><a href="/espacos">Espaços</a></li>
           </ul>
         </nav>
       </div>
     </header>
 
-    <!-- Área principal onde o conteúdo de cada página será exibido. -->
     <main class="limite conteudo-principal">
-
-      <!-- Insere o conteúdo da página atual usando o Handlebars. -->
+      {{!-- o handlebars injeta aqui o conteudo da view de cada rota --}}
       {{{body}}}
     </main>
 
-    <!-- Rodapé exibido nas páginas que utilizam este layout. -->
     <footer class="rodape">
       <div class="limite">
-
-        <!-- Identifica o projeto e a disciplina em que foi desenvolvido. -->
-        <p>Projeto de Programação para Internet — Laboratórios e Espaços</p>
+        <p>Projeto de Programação para Internet — Laboratórios e Espaços (Grupo 06)</p>
       </div>
     </footer>
   </body>
 </html>
-

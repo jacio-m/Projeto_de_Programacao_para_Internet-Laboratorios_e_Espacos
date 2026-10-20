@@ -49,4 +49,4 @@ if (require.main === module) {
 
 // Exporta a função para que ela possa ser utilizada por outros arquivos.
 module.exports = { iniciarServidor };
-```
+
